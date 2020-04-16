@@ -18,7 +18,14 @@ package com.google.sps.servlets;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.SortDirection;
+import com.google.gson.Gson;
+
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -33,9 +40,10 @@ public class FileUploadServlet extends HttpServlet {
     
     String filename = request.getParameter("filename");
     String code =  request.getParameter("editor");
-    //String code = "int i = 0;";
+    String toGet = request.getParameter("fileToGet");
 
     System.out.println(filename);
+    System.out.println(code);
     System.out.println(code);
 
     Entity taskEntity = new Entity("Task");
@@ -46,4 +54,31 @@ public class FileUploadServlet extends HttpServlet {
 
     response.sendRedirect("/editor.html");
   }
+
+//   @Override
+//   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+//     Query query = new Query("Task").addSort("filename", SortDirection.DESCENDING);
+
+//     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+//     PreparedQuery results = datastore.prepare(query);
+
+//     String toGet = request.getParameter("fileToGet");
+
+//     String savedCode = "file not found :(";
+//     for (Entity entity : results.asIterable()) {
+//       String file = (String) entity.getProperty("filename");
+//       if (file.equals(toGet)) {
+//           savedCode = (String) entity.getProperty("code");
+//           break;
+//       }
+//     }
+
+//     System.out.println("toget: " + toGet);
+//     System.out.println(savedCode);
+
+//     Gson gson = new Gson();
+
+//     response.setContentType("application/json;");
+//     response.getWriter().println(gson.toJson(savedCode));
+//   }
 }

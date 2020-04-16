@@ -7,6 +7,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Code Editor</title>
 
+    
+    <!--JAVASCRIPT-->
+    <script src="codemirror/lib/codemirror.js"></script>
+    <script src="codemirror/mode/javascript/javascript.js"></script>
+    <script type="text/javascript" src="script.js"></script>
+
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
     <link href="css/app.css" rel="stylesheet"/>
 
@@ -37,33 +43,28 @@
         <option value="PYTHON">PYTHON</option>
       </select>
       <p>Save current file</p>
+      <p>Input file name</p>
       <form method="POST" action="/name">
       <input type="text" name="filename" />
       <br/>
       <button>Save</button>
-    </form>
     </header>
 
     <div class="doc">
-        <form method= "POST" action = "/name">
         <!-- ADDS EDITOR TO SCREEN-->
         <textarea id="editor" name = "editor">//Code Goes Here</textarea>
-        </form>
+        <script>
+            var editor = CodeMirror.fromTextArea
+            (document.getElementById("editor"), {
+                mode: "javascript",
+                theme: "dracula",
+                lineNumbers: true
+            })
+        </script>
     </div>
+    </form>
 
+     
 
-    <!--JAVASCRIPT-->
-    <script src="codemirror/lib/codemirror.js"></script>
-    <script src="codemirror/mode/javascript/javascript.js"></script>
-
-    <script>
-      var editor = CodeMirror.fromTextArea
-      (document.getElementById("editor"), {
-        mode: "javascript",
-        theme: "dracula",
-        lineNumbers: true
-      });
-
-    </script>
   </body>
 </html>
