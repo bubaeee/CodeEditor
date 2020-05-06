@@ -1,7 +1,7 @@
 
 function getName() {
     code = editor.getValue();
-    console.log(code);
+
     fetch("/name").then(response => response.text()).then((code) => {
     document.getElementById('editor').getValue = code;
     })

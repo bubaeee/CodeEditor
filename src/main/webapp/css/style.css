@@ -4,6 +4,37 @@ body, html {
   margin: 0;
 }
 
+#header {
+    width: 100%;
+    background-color: red;
+    height: 30px;
+}
+
+#container {
+    width: 600px;
+    background-color: #222831;
+    margin: auto;
+}
+#first {
+    width: 250px;
+    float: left;
+    height: 150px;
+    text-align: center;
+        background-color: #424242;
+        color: white
+}
+#second {
+    width: 250px;
+    float: right;
+    height: 150px;
+    text-align: center;
+    background-color: #424242;
+    color: white
+}
+#clear {
+    clear: both;
+}
+
 .bgimg {
   /*background-image: url("image2.jpeg");*/
   background-color: pink;

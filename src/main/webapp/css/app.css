@@ -1,5 +1,5 @@
 body {
-  font-family: "Helvetica","Arial",sans-serif;
+  font-family: "Courier New", Courier, monospace;
   font-size: 14px;
   font-weight: 400;
   line-height: 20px;
@@ -9,7 +9,7 @@ body {
 }
 
 .header {
-  height: 200px;
+  height: 100px;
   /*display: flex;*/
   text-align: center;
   align-items: center;
