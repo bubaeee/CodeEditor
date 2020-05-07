@@ -1,4 +1,3 @@
-
 <!DOCTYPE>
 <html>
   <head>
@@ -57,16 +56,15 @@
     </div>
     </form>
 
-    <form method="post" id="nameToGet" >
     <div id="second">
-        <p>Get a file</p>
+    <p>Get a file</p>
       <p>Input file name</p>
-      <input type="text" name="file2Get" id="file2Get" />
+      <input type="text" name="file" id="file" />
       <br/>
       <p> </p>
-      <input type="submit" value="Submit" name="submit1" class="submit1" id="submit1" />
+      <button type="button" id = "button" name = "button">Click Me!</button>
     </div>
-    </form>
+
     <div id="clear"></div>
     <p> </p>
 </div>
@@ -91,48 +89,30 @@
             $(document).ready(function() {
                 $('#editor').focus();
                 $('#name_input').on('submit', function(e) {
-                e.preventDefault();
-                var data = $("#filename").val();
-                console.log(data);
-                console.log(editor.getValue());
-                
-                $.post("/name", {
-                    filename: data,
-                    editor: editor.getValue()
-                })
+                    e.preventDefault();
+                    var data = $("#filename").val();
+                    console.log(data);
+                    console.log(editor.getValue());
+                    $.post("/name", {
+                        filename: data,
+                        editor: editor.getValue()
+                    })
                 });
+            });
+        </script>
 
-                $('#nameToGet').on('submit1', function(e) {
-                    console.log("this one");
-                e.preventDefault();
-                var data = $("#filename").val();
-                console.log(data);
-                
-                $.ajax({
-
-            url : "/name",
-            dataType : 'json',
-            error : function() {
-
-                alert("Error Occured");
-            },
-            success : function(data) {
-                var receivedData = [];
-
-                $.each(data.jsonArray, function(index) {
-                    $.each(data.jsonArray[index], function(key, value) {
-                        var point = [];
-
-                            point.push(key);
-                            point.push(value);
-                            receivedData.push(point);
-                            console.log(receivedData);
-                        }); 
+        <script>
+            $(document).ready(function() {
+            $('#button').click(function() {
+                var toGet = $("#file").val();
+                $.ajax({ type: "GET",   
+                    url: "/name", 
+                    data: {file: toGet},
+                    success: function(data, status, xhr) {
+                        editor.getDoc().setValue(data);
+                    }
                 });
-
-            }
-        });
-                });
+            });
             });
         </script>
   </body>
