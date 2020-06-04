@@ -1,0 +1,184 @@
+//- Copyright 2018 Google LLC.
+//-
+//- Licensed under the Apache License, Version 2.0 (the "License");
+//- you may not use this file except in compliance with the License.
+//- You may obtain a copy of the License at
+//-
+//-     http://www.apache.org/licenses/LICENSE-2.0
+//-
+//- Unless required by applicable law or agreed to in writing, software
+//- distributed under the License is distributed on an "AS IS" BASIS,
+//- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//- See the License for the specific language governing permissions and
+//- limitations under the License.
+
+
+doctype html
+html(lang="en")
+  head
+    title Code Editor
+    meta(charset="utf-8")
+
+    //- [Javascript]
+    script(src = "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.32.0/codemirror.min.js")
+    script(src = "https://cdn.jsdelivr.net/npm/codemirror@5.53.0/lib/codemirror.js")
+    script(src = "https://cdn.jsdelivr.net/npm/codemirror@5.53.0/mode/javascript/javascript.js")
+    
+
+    //-[CSS]
+    link(href='https://cdn.jsdelivr.net/npm/codemirror@5.53.0/lib/codemirror.css', rel='stylesheet')
+    link(type = 'text/css', href='https://cdn.jsdelivr.net/npm/codemirror@5.53.0/theme/dracula.css', rel='stylesheet')
+    link(href='/style.css', rel='stylesheet')
+    link(href='/app.css', rel='stylesheet')
+
+
+    //- [Editor Style]
+    style(type = "text/css" media="screen").
+        #editor {
+              border: 1px solid black;
+      		  margin: auto;
+      		  height: 600px;
+      		  width: 100%;
+        }
+        
+
+  body
+     //- [Javascript]
+script(src="/socket.io/socket.io.js")
+script(src="https://code.jquery.com/jquery-1.11.1.js")
+script(src="ot.js")
+script(src="codemirror-adapter.js")
+
+//- script(src="client.js")
+//- script(src="text-operation.js")
+//- script(src="main.js")
+
+//- script(data-min = "/main" , src="/require.js")
+
+    //-[CSS]
+link(href='https://fonts.googleapis.com/css?family=Roboto', rel='stylesheet')
+
+header.header
+  h1.header__h1 Code Editor
+  select#language
+    option(value='')  Select Language 
+    option(value='JAVASCRIPT') JAVASCRIPT
+    option(value='JAVA') JAVA
+    option(value='C++') C
+    option(value='GO') GO
+    option(value='PYTHON') PYTHON
+#container
+  form#name_input(method='post')
+    #first
+      p Save current file
+      p Input file name
+      input#filename(type='text', name='filename')
+      br
+      p  
+      input#submit.submit(type='submit', value='Submit', name='submit')
+  #second
+    p Get a file
+    p Input file name
+    input#file(type='text', name='file')
+    br
+    p  
+    button#button(type='button', name='button') Click Me!
+  #clear
+  p  
+.doc
+  // ADDS EDITOR TO SCREEN
+  textarea#editor(name='editor', placeholder='//Code Goes Here')
+  script(src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js")
+  script.
+    var client = new ot.Client(0); // the client joins at revision 0
+    var oldValue = "";
+    var opFlag = false;
+    var sender = false;
+    var cm = CodeMirror.fromTextArea
+    (document.getElementById("editor"), {
+    mode: "javascript",
+    theme: "dracula",
+    lineNumbers: true,
+    value: oldValue
+    })
+    $(function () {
+    var socket = io();                                          //Load socket.io-client -> exposes an io global -> connects
+    adapter = new ot.CodeMirrorAdapter(cm);
+        cm.on("changes", function(cm, changes) { 
+        if (oldValue == cm.getValue()){
+            return;
+        }
+        adapter.onChanges(oldValue,changes);
+        var operation = adapter.pair[0];
+        oldValue = cm.getValue();
+        sender = true;
+        
+        onUserChange (operation);        
+    });
+    
+    
+    client.applyOperation = function (operation) {
+            adapter.applyOperation(operation);
+    };
+       
+    client.sendOperation = function (revision,operation) {
+        opFlag = true;
+            $.ajax({
+                url: '/operations',
+                type: 'GET',
+                contentType: 'application/json',
+                data: {op: JSON.stringify(operation),
+                        revision: revision,
+                        adapterValue: oldValue}
+            });
+        };
+
+    function onUserChange (operation) {
+        client.applyClient(operation);
+        }
+
+    //- function onReceiveOperation (json) {
+        socket.on('operation', function(op){                       //Once socket server receives an 'operation' event from a user from server-side
+            
+            var operation = ot.TextOperation.fromJSON(JSON.parse(JSON.stringify(op.operation)));
+            oldValue = op.oldValue;
+           
+    
+            if (opFlag == true){
+                client.serverAck();
+                opFlag = false;
+                return;
+            }
+                client.applyServer(operation);
+        });
+        
+    });
+
+    //Updating and Retrieving Files
+
+    $(document).ready(function() {                              
+        $('#editor').focus();
+        $('#name_input').on('submit', function(e) {
+            e.preventDefault();
+            var data = $("#filename").val();
+            $.post("/name", {
+                filename: data,
+                editor: cm.getValue()
+            });
+        });
+    });
+
+    $(document).ready(function() {
+        $('#button').click(function() {
+            var toGet = $("#file").val();
+            $.ajax({ type: "GET",   
+                url: "/name", 
+                data: {file: toGet},
+                success: function(data, status, xhr) {
+                    cm.getDoc().setValue(data);
+                }
+            });
+        });
+    });
+    
+
